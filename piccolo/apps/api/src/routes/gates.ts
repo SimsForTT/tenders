@@ -6,6 +6,7 @@ import { validate } from "../middleware/validate.js";
 import { requireAuth } from "../middleware/auth.js";
 import { writeAudit } from "../lib/audit.js";
 import { NotFoundError, ForbiddenError, ConflictError } from "../lib/errors.js";
+import { isOwnerOrAdmin } from "../lib/authz.js";
 
 export const gatesRouter = Router();
 gatesRouter.use(requireAuth);
@@ -21,15 +22,25 @@ gatesRouter.post(
   validate(gateDecisionSchema),
   async (req, res, next) => {
     try {
-      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id));
+      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id!));
       if (!tender) throw new NotFoundError("Tender not found");
 
       const { gateNo, decision, reason, evidenceUrl } = req.body as typeof gateDecisionSchema._output;
 
-      // Design's "Two-person QA" gate: the reviewer must not be the
-      // tender's own owner.
-      if (gateNo === 4 && req.user!.id === tender.ownerId) {
-        throw new ForbiddenError("Gate 4 requires sign-off from someone other than the tender owner.");
+      if (gateNo === 4) {
+        // Design's "Two-person QA" gate: any authenticated team member
+        // EXCEPT the tender's own owner may sign it off - that's the
+        // whole point of "independent reviewer".
+        if (req.user!.id === tender.ownerId) {
+          throw new ForbiddenError("Gate 4 requires sign-off from someone other than the tender owner.");
+        }
+      } else if (!isOwnerOrAdmin(req.user!, tender.ownerId)) {
+        // Gates 1-3 are the owner's own bid/no-bid, compliance and price
+        // decisions - only the owner (or an admin standing in) records
+        // them. Without this check, any authenticated account could
+        // record a fabricated "no_go" or "go" for a tender it has no
+        // relationship to (see SECURITY.md).
+        throw new ForbiddenError("Only the tender owner or an admin can record this gate decision.");
       }
 
       const [existing] = await db

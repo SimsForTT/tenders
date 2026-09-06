@@ -5,14 +5,15 @@ import { returnableUpdateSchema, idParamSchema } from "@piccolo/shared";
 import { validate } from "../middleware/validate.js";
 import { requireAuth } from "../middleware/auth.js";
 import { writeAudit } from "../lib/audit.js";
-import { NotFoundError } from "../lib/errors.js";
+import { NotFoundError, ForbiddenError } from "../lib/errors.js";
+import { isOwnerOrAdmin } from "../lib/authz.js";
 
 export const returnablesRouter = Router();
 returnablesRouter.use(requireAuth);
 
 returnablesRouter.get("/tenders/:id/returnables", validate(idParamSchema, "params"), async (req, res, next) => {
   try {
-    const rows = await db.select().from(schema.returnables).where(eq(schema.returnables.tenderId, req.params.id));
+    const rows = await db.select().from(schema.returnables).where(eq(schema.returnables.tenderId, req.params.id!));
     res.json(rows);
   } catch (err) {
     next(err);
@@ -25,8 +26,17 @@ returnablesRouter.patch(
   validate(returnableUpdateSchema),
   async (req, res, next) => {
     try {
-      const [existing] = await db.select().from(schema.returnables).where(eq(schema.returnables.id, req.params.id));
+      const [existing] = await db.select().from(schema.returnables).where(eq(schema.returnables.id, req.params.id!));
       if (!existing) throw new NotFoundError("Returnable not found");
+
+      // Without this, any authenticated account could mark another
+      // tender's mandatory returnable "satisfied" and quietly defeat the
+      // stage-13 completeness check, which trusts this table (see
+      // SECURITY.md "broken access control fix").
+      const [parentTender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, existing.tenderId));
+      if (!parentTender || !isOwnerOrAdmin(req.user!, parentTender.ownerId)) {
+        throw new ForbiddenError("Only the tender owner or an admin can update its returnables.");
+      }
 
       const { status, satisfiedBy, docId } = req.body as typeof returnableUpdateSchema._output;
       const isVerification = status === "satisfied" && existing.status !== "satisfied";

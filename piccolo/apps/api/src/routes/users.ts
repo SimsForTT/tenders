@@ -67,8 +67,8 @@ usersRouter.patch(
   validate(idParamSchema, "params"),
   async (req, res, next) => {
     try {
-      await db.update(schema.users).set({ isActive: false }).where(eq(schema.users.id, req.params.id));
-      await writeAudit({ actorId: req.user!.id, action: "user_deactivated", entityType: "user", entityId: req.params.id, ip: req.ip });
+      await db.update(schema.users).set({ isActive: false }).where(eq(schema.users.id, req.params.id!));
+      await writeAudit({ actorId: req.user!.id, action: "user_deactivated", entityType: "user", entityId: req.params.id!, ip: req.ip });
       res.status(204).end();
     } catch (err) {
       next(err);

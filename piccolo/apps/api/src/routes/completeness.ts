@@ -6,6 +6,7 @@ import { validate } from "../middleware/validate.js";
 import { requireAuth } from "../middleware/auth.js";
 import { writeAudit } from "../lib/audit.js";
 import { NotFoundError, ForbiddenError } from "../lib/errors.js";
+import { isOwnerOrAdmin } from "../lib/authz.js";
 
 export const completenessRouter = Router();
 completenessRouter.use(requireAuth);
@@ -18,9 +19,9 @@ completenessRouter.post(
   validate(completenessCheckSchema),
   async (req, res, next) => {
     try {
-      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id));
+      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id!));
       if (!tender) throw new NotFoundError("Tender not found");
-      if (req.user!.role !== "admin" && req.user!.id !== tender.ownerId) {
+      if (!isOwnerOrAdmin(req.user!, tender.ownerId)) {
         throw new ForbiddenError("Only the tender owner can run the completeness check.");
       }
 

@@ -6,13 +6,14 @@ import { validate } from "../middleware/validate.js";
 import { requireAuth } from "../middleware/auth.js";
 import { writeAudit } from "../lib/audit.js";
 import { NotFoundError, ForbiddenError } from "../lib/errors.js";
+import { isOwnerOrAdmin } from "../lib/authz.js";
 
 export const extractionsRouter = Router();
 extractionsRouter.use(requireAuth);
 
 extractionsRouter.get("/tenders/:id/extractions", validate(idParamSchema, "params"), async (req, res, next) => {
   try {
-    const rows = await db.select().from(schema.extractions).where(eq(schema.extractions.tenderId, req.params.id));
+    const rows = await db.select().from(schema.extractions).where(eq(schema.extractions.tenderId, req.params.id!));
     res.json(rows);
   } catch (err) {
     next(err);
@@ -26,12 +27,12 @@ extractionsRouter.get("/tenders/:id/extractions", validate(idParamSchema, "param
 // extraction for the tender is still "draft".
 extractionsRouter.post("/extractions/:id/verify", validate(idParamSchema, "params"), async (req, res, next) => {
   try {
-    const [extraction] = await db.select().from(schema.extractions).where(eq(schema.extractions.id, req.params.id));
+    const [extraction] = await db.select().from(schema.extractions).where(eq(schema.extractions.id, req.params.id!));
     if (!extraction) throw new NotFoundError("Extraction not found");
 
     const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, extraction.tenderId));
     if (!tender) throw new NotFoundError("Tender not found");
-    if (req.user!.role !== "admin" && req.user!.id !== tender.ownerId) {
+    if (!isOwnerOrAdmin(req.user!, tender.ownerId)) {
       throw new ForbiddenError("Only the tender owner can verify its extraction.");
     }
 

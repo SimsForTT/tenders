@@ -7,6 +7,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { writeAudit } from "../lib/audit.js";
 import { NotFoundError } from "../lib/errors.js";
 import { assertStageAdvanceAllowed } from "../services/stageTransition.js";
+import { isOwnerOrAdmin } from "../lib/authz.js";
 
 export const tendersRouter = Router();
 tendersRouter.use(requireAuth);
@@ -26,7 +27,7 @@ tendersRouter.get("/", async (_req, res, next) => {
 
 tendersRouter.get("/:id", validate(idParamSchema, "params"), async (req, res, next) => {
   try {
-    const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id));
+    const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id!));
     if (!tender) throw new NotFoundError("Tender not found");
     const [returnables, gates, documents, extractions, outcome] = await Promise.all([
       db.select().from(schema.returnables).where(eq(schema.returnables.tenderId, tender.id)),
@@ -81,7 +82,7 @@ tendersRouter.patch(
   validate(claimTenderSchema),
   async (req, res, next) => {
     try {
-      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id));
+      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id!));
       if (!tender) throw new NotFoundError("Tender not found");
       if (tender.ownerId) return res.status(409).json({ error: "already_claimed" });
 
@@ -104,17 +105,13 @@ tendersRouter.patch(
   },
 );
 
-function isOwnerOrAdmin(user: { id: string; role: string }, tenderOwnerId: string | null) {
-  return user.role === "admin" || (tenderOwnerId !== null && user.id === tenderOwnerId);
-}
-
 tendersRouter.patch(
   "/:id/stage",
   validate(idParamSchema, "params"),
   validate(updateTenderStageSchema),
   async (req, res, next) => {
     try {
-      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id));
+      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id!));
       if (!tender) throw new NotFoundError("Tender not found");
       if (!isOwnerOrAdmin(req.user!, tender.ownerId)) {
         return res.status(403).json({ error: "not_tender_owner" });

@@ -1,6 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import pinoHttp from "pino-http";
+import { pinoHttp } from "pino-http";
 import { helmetMiddleware, corsMiddleware } from "./middleware/security.js";
 import { generalLimiter } from "./middleware/rateLimit.js";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -41,6 +41,14 @@ export function createApp() {
 
   app.use("/auth", authRouter);
   app.use("/users", usersRouter);
+  // /internal MUST be registered before any router mounted at "/" below.
+  // Those routers call `.use(requireAuth)` with no path filter, and since
+  // they're mounted at "/" that middleware matches every request path -
+  // including /internal/* - regardless of what routes the router itself
+  // defines. Registered first, /internal/* is fully handled by
+  // internalRouter (and its own requireInternalToken check) before it can
+  // ever reach one of those routers' blanket requireAuth.
+  app.use("/internal", internalRouter);
   app.use("/tenders", tendersRouter);
   app.use("/", gatesRouter);
   app.use("/", returnablesRouter);
@@ -51,7 +59,6 @@ export function createApp() {
   app.use("/", outcomesRouter);
   app.use("/platforms", platformsRouter);
   app.use("/", completenessRouter);
-  app.use("/internal", internalRouter);
 
   app.use((_req, res) => res.status(404).json({ error: "not_found" }));
   app.use(errorHandler);

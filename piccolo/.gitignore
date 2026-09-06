@@ -12,3 +12,4 @@ storage/documents/
 *.pem
 *.key
 .turbo/
+*.tsbuildinfo

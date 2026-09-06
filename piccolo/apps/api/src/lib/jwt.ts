@@ -9,10 +9,16 @@ export type AccessTokenPayload = {
 };
 
 export function signAccessToken(payload: AccessTokenPayload): string {
-  return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
-    expiresIn: env.JWT_ACCESS_TTL,
+  // @types/jsonwebtoken types `expiresIn` as a template-literal union
+  // (e.g. "15m") rather than plain `string`, which is all a runtime-parsed
+  // env var can ever be - the cast is a type-level formality, not a
+  // runtime trust decision (JWT_ACCESS_TTL is a trusted env var, not user
+  // input, and jsonwebtoken validates the format itself at call time).
+  const options: jwt.SignOptions = {
+    expiresIn: env.JWT_ACCESS_TTL as jwt.SignOptions["expiresIn"],
     algorithm: "HS256",
-  });
+  };
+  return jwt.sign(payload, env.JWT_ACCESS_SECRET, options);
 }
 
 export function verifyAccessToken(token: string): AccessTokenPayload {

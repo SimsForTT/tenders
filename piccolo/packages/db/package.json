@@ -8,17 +8,19 @@
   "scripts": {
     "generate": "drizzle-kit generate",
     "migrate": "tsx src/migrate.ts",
-    "seed": "tsx src/seed/seed.ts"
+    "seed": "tsx src/seed/seed.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "drizzle-orm": "^0.33.0",
+    "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.4",
     "argon2": "^0.40.3",
     "@piccolo/shared": "*"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.24.2",
+    "drizzle-kit": "^0.31.10",
     "tsx": "^4.16.5",
+    "typescript": "^5.5.4",
     "@types/node": "^20.14.15"
   }
 }

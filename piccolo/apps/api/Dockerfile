@@ -13,7 +13,11 @@ COPY apps/api/package.json apps/api/package.json
 COPY packages/db/package.json packages/db/package.json
 COPY packages/shared/package.json packages/shared/package.json
 COPY packages/extraction/package.json packages/extraction/package.json
-RUN npm install --workspace=apps/api --workspace=packages/db --workspace=packages/shared --workspace=packages/extraction --include-workspace-root
+# --omit=dev: the shipped image never needs vitest/vite/drizzle-kit/eslint
+# etc. Those tools carry their own, separate CVE history (bundled esbuild
+# dev-server issues, for one) that has no business being reachable code in
+# a production container even if nothing ever invokes it.
+RUN npm install --omit=dev --workspace=apps/api --workspace=packages/db --workspace=packages/shared --workspace=packages/extraction --include-workspace-root
 
 FROM base AS runner
 ENV NODE_ENV=production

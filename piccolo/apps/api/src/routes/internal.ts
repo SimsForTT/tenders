@@ -82,7 +82,7 @@ internalRouter.post(
   validate(healthReportSchema),
   async (req, res, next) => {
     try {
-      const [platform] = await db.select().from(schema.platforms).where(eq(schema.platforms.id, req.params.id));
+      const [platform] = await db.select().from(schema.platforms).where(eq(schema.platforms.id, req.params.id!));
       if (!platform) return res.status(404).json({ error: "unknown_platform" });
 
       const { resultCount, success } = req.body as z.infer<typeof healthReportSchema>;

@@ -13,7 +13,8 @@ import { uploadLimiter } from "../middleware/rateLimit.js";
 import { writeAudit } from "../lib/audit.js";
 import { sha256File } from "../lib/checksum.js";
 import { env } from "../env.js";
-import { AppError, NotFoundError } from "../lib/errors.js";
+import { AppError, NotFoundError, ForbiddenError } from "../lib/errors.js";
+import { isOwnerOrAdmin } from "../lib/authz.js";
 import { runExtraction } from "../services/runExtraction.js";
 import { logger } from "../lib/logger.js";
 
@@ -49,21 +50,28 @@ documentsRouter.post(
   validate(idParamSchema, "params"),
   upload.single("file"),
   async (req, res, next) => {
-    let storedPath: string | null = null;
+    // multer has already written the file to disk by the time this handler
+    // runs, so capture the path up front - every throw below must still
+    // reach the cleanup in the catch block, including auth/lookup failures
+    // that happen before the file is actually used.
+    const storedPath: string | null = req.file?.path ?? null;
     try {
-      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id));
+      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id!));
       if (!tender) throw new NotFoundError("Tender not found");
+      if (!isOwnerOrAdmin(req.user!, tender.ownerId)) {
+        throw new ForbiddenError("Only the tender owner or an admin can upload documents to it.");
+      }
 
       if (!req.file) throw new AppError(400, "No file uploaded");
-      storedPath = req.file.path;
+      const filePath = req.file.path;
 
-      const detected = await fileTypeFromFile(storedPath);
+      const detected = await fileTypeFromFile(filePath);
       if (!detected || !ALLOWED_MIME.has(detected.mime)) {
-        await fs.unlink(storedPath).catch(() => undefined);
+        await fs.unlink(filePath).catch(() => undefined);
         throw new AppError(415, "Unsupported or unrecognised file type");
       }
 
-      const checksum = await sha256File(storedPath);
+      const checksum = await sha256File(filePath);
       const kind = (req.body?.kind as string | undefined)?.slice(0, 60) ?? "tender_pack";
 
       const [doc] = await db
@@ -71,7 +79,7 @@ documentsRouter.post(
         .values({
           tenderId: tender.id,
           kind,
-          filePath: path.basename(storedPath),
+          filePath: path.basename(filePath),
           checksum,
           mimeType: detected.mime,
           uploadedBy: req.user!.id,

@@ -5,7 +5,8 @@ import { createOutcomeSchema, idParamSchema } from "@piccolo/shared";
 import { validate } from "../middleware/validate.js";
 import { requireAuth } from "../middleware/auth.js";
 import { writeAudit } from "../lib/audit.js";
-import { NotFoundError, ConflictError } from "../lib/errors.js";
+import { NotFoundError, ConflictError, ForbiddenError } from "../lib/errors.js";
+import { isOwnerOrAdmin } from "../lib/authz.js";
 
 export const outcomesRouter = Router();
 outcomesRouter.use(requireAuth);
@@ -21,8 +22,11 @@ outcomesRouter.post(
   validate(createOutcomeSchema),
   async (req, res, next) => {
     try {
-      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id));
+      const [tender] = await db.select().from(schema.tenders).where(eq(schema.tenders.id, req.params.id!));
       if (!tender) throw new NotFoundError("Tender not found");
+      if (!isOwnerOrAdmin(req.user!, tender.ownerId)) {
+        throw new ForbiddenError("Only the tender owner or an admin can record its outcome.");
+      }
 
       const [existing] = await db.select().from(schema.outcomes).where(eq(schema.outcomes.tenderId, tender.id));
       if (existing) throw new ConflictError("Outcome already recorded for this tender");
