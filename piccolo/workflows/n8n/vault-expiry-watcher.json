@@ -1,0 +1,74 @@
+{
+  "name": "Piccolo - Vault expiry watcher",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 5 * * *" }] }
+      },
+      "id": "nightly-schedule",
+      "name": "Nightly at 05:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-200, 0],
+      "notes": "Build sequence step 03 (artboard P2-06): smallest job on the list, removes the most common disqualification."
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.PICCOLO_API_BASE_URL}}/internal/vault-expiry",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "X-Internal-Token", "value": "={{$env.PICCOLO_API_INTERNAL_TOKEN}}" }]
+        }
+      },
+      "id": "fetch-expiry",
+      "name": "GET /internal/vault-expiry",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [40, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            {
+              "leftValue": "={{$json.length}}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "has-expiring-docs",
+      "name": "Any at risk?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [280, 0],
+      "notes": "This node evaluates the whole response array's length, so it should run once against the raw HTTP Request output (Always Output Data off, no Split In Batches before it)."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.ALERT_WEBHOOK_URL}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"text\": \"Vault expiry watch: \" + $json.length + \" document(s) expire before an open tender's closing date. Check the Expiry Watch view in Piccolo.\" } }}"
+      },
+      "id": "send-alert",
+      "name": "Post alert (Teams/Slack webhook)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, -80],
+      "notes": "Set ALERT_WEBHOOK_URL in the n8n environment to an incoming webhook URL (Teams or Slack both support these) - never hardcode it here or commit it."
+    }
+  ],
+  "connections": {
+    "Nightly at 05:00": { "main": [[{ "node": "GET /internal/vault-expiry", "type": "main", "index": 0 }]] },
+    "GET /internal/vault-expiry": { "main": [[{ "node": "Any at risk?", "type": "main", "index": 0 }]] },
+    "Any at risk?": { "main": [[{ "node": "Post alert (Teams/Slack webhook)", "type": "main", "index": 0 }], []] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" }
+}

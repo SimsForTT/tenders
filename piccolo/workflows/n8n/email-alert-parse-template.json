@@ -1,0 +1,83 @@
+{
+  "name": "Piccolo - Email alert parse template",
+  "nodes": [
+    {
+      "parameters": {
+        "mailbox": "INBOX",
+        "postProcessAction": "read",
+        "options": {}
+      },
+      "id": "email-trigger",
+      "name": "New email (IMAP)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [-260, 0],
+      "credentials": { "imap": { "id": "REPLACE-IN-N8N-CREDENTIALS-UI", "name": "Shared tenders mailbox" } },
+      "notes": "Set up the IMAP credential inside n8n's Credentials UI (Settings > Credentials), never in this file. Point it at the shared mailbox subscribed to platform alert emails (OnlineTenders and friends, per artboard P2-02 Method 2)."
+    },
+    {
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{$credentials.anthropicApi.apiKey}}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-sonnet-5', max_tokens: 1024, system: 'Extract tender_no, client, title and closing_at (ISO 8601) from this tender alert email. Reply with ONLY a JSON object with those four keys, using null for anything not stated. Never guess a value.', messages: [{ role: 'user', content: $json.text || $json.html || '' }] }) }}"
+      },
+      "id": "claude-extract",
+      "name": "Claude: extract fields",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-20, 0],
+      "credentials": { "httpHeaderAuth": { "id": "REPLACE-IN-N8N-CREDENTIALS-UI", "name": "Anthropic API key" } },
+      "notes": "Store the Anthropic API key as an n8n credential, not inline. This is a plain HTTP call rather than Piccolo's own extraction pipeline (packages/extraction) because email alerts are short text, not documents needing OCR - no tool-use/structured schema needed here, just a JSON reply the Code node below parses defensively."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Claude replies with a JSON object as plain text content - parse it\n// defensively, and drop anything that doesn't look like a real lead\n// rather than posting garbage into the tracker.\nconst PLATFORM_ID = 'REPLACE-WITH-PLATFORM-UUID-FOR-THIS-MAILBOX-SOURCE';\nconst out = [];\nfor (const item of items) {\n  try {\n    const text = item.json.content?.[0]?.text ?? '{}';\n    const parsed = JSON.parse(text);\n    if (!parsed.tender_no || !parsed.closing_at) continue;\n    out.push({\n      json: {\n        tenderNo: String(parsed.tender_no).slice(0, 120),\n        client: String(parsed.client || 'Unknown').slice(0, 300),\n        title: String(parsed.title || '').slice(0, 500),\n        closingAt: new Date(parsed.closing_at).toISOString(),\n        sourcePlatformId: PLATFORM_ID,\n      },\n    });\n  } catch (e) {\n    continue;\n  }\n}\nreturn out;"
+      },
+      "id": "parse-response",
+      "name": "Parse Claude response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.PICCOLO_API_BASE_URL}}/internal/leads",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "X-Internal-Token", "value": "={{$env.PICCOLO_API_INTERNAL_TOKEN}}" }] },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "tenderNo", "value": "={{$json.tenderNo}}" },
+            { "name": "client", "value": "={{$json.client}}" },
+            { "name": "title", "value": "={{$json.title}}" },
+            { "name": "closingAt", "value": "={{$json.closingAt}}" },
+            { "name": "sourcePlatformId", "value": "={{$json.sourcePlatformId}}" }
+          ]
+        }
+      },
+      "id": "create-lead",
+      "name": "POST /internal/leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 0]
+    }
+  ],
+  "connections": {
+    "New email (IMAP)": { "main": [[{ "node": "Claude: extract fields", "type": "main", "index": 0 }]] },
+    "Claude: extract fields": { "main": [[{ "node": "Parse Claude response", "type": "main", "index": 0 }]] },
+    "Parse Claude response": { "main": [[{ "node": "POST /internal/leads", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" }
+}
