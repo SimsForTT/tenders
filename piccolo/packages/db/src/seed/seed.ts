@@ -13,11 +13,19 @@ const SEED_PLATFORMS = [
   { name: "TenderFlow", url: "https://example-tenderflow.invalid/rss", tier: 5, ingestMethod: "rss" as const, cadence: "hourly" },
   { name: "SA-Tenders", url: "https://example-sa-tenders.invalid/rss", tier: 5, ingestMethod: "rss" as const, cadence: "hourly" },
   // URL is the real, verified listing page - see
-  // workflows/scrapers/etenders/scrape.ts. After seeding, copy this
-  // platform's id into ETENDERS_PLATFORM_ID (a GitHub Actions repo
-  // variable) so the scrape workflow can report health/create leads
-  // against the right row.
-  { name: "eTenders", url: "https://www.etenders.gov.za/Home/opportunities?id=1", tier: 1, ingestMethod: "scrape" as const, cadence: "twice_daily" },
+  // workflows/scrapers/etenders/scrape.ts. id is pinned (not
+  // auto-generated) so it matches the ETENDERS_PLATFORM_ID already set as
+  // a GitHub Actions repo variable - if you ever re-seed against a fresh
+  // database, this platform lands with the same id every time, no manual
+  // copy-paste step needed.
+  {
+    id: "1ad55d48-4a3a-4010-bbbf-0dfbd46e435f",
+    name: "eTenders",
+    url: "https://www.etenders.gov.za/Home/opportunities?id=1",
+    tier: 1,
+    ingestMethod: "scrape" as const,
+    cadence: "twice_daily",
+  },
   { name: "SANRAL", url: "https://www.nra.co.za", tier: 2, ingestMethod: "scrape" as const, cadence: "twice_daily" },
 ];
 
