@@ -51,17 +51,17 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{$env.ALERT_WEBHOOK_URL}}",
+        "url": "={{$env.DISCORD_WEBHOOK_URL}}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { \"text\": \"Vault expiry watch: \" + $json.length + \" document(s) expire before an open tender's closing date. Check the Expiry Watch view in Piccolo.\" } }}"
+        "jsonBody": "={{ { \"content\": \"\\u26A0\\uFE0F Vault expiry watch: \" + $json.length + \" document(s) expire before an open tender's closing date. Check the Expiry Watch view in Piccolo.\" } }}"
       },
       "id": "send-alert",
-      "name": "Post alert (Teams/Slack webhook)",
+      "name": "Post alert (Discord webhook)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [520, -80],
-      "notes": "Set ALERT_WEBHOOK_URL in the n8n environment to an incoming webhook URL (Teams or Slack both support these) - never hardcode it here or commit it."
+      "notes": "Set DISCORD_WEBHOOK_URL in the n8n environment to a Discord incoming webhook URL (Server Settings -> Integrations -> Webhooks) - never hardcode it here or commit it. Same webhook the API's own new-tender alerts use (apps/api/src/lib/discord.ts), so both land in one channel. Swapping to Slack/Teams later just means changing the body key from \"content\" to \"text\" - Discord and Slack/Teams incoming webhooks are otherwise interchangeable but not field-compatible."
     }
   ],
   "connections": {

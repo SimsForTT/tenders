@@ -9,6 +9,7 @@ import { writeAudit } from "../lib/audit.js";
 import { env } from "../env.js";
 import { getExpiryWatch } from "../services/expiryWatch.js";
 import { logger } from "../lib/logger.js";
+import { sendNewTenderAlert } from "../lib/discord.js";
 
 /**
  * Everything under here is reached only by n8n workflows (see
@@ -63,6 +64,18 @@ internalRouter.post("/leads", validate(createLeadSchema), async (req, res, next)
       metadata: { platform: platform.name },
     });
     res.status(201).json({ created: true, tender });
+
+    // Fire-and-forget, same pattern as the extraction pipeline trigger in
+    // routes/documents.ts - a Discord outage shouldn't slow down or fail
+    // lead creation, and this only fires for a genuinely new tender, not
+    // a repeat POST for one already known.
+    sendNewTenderAlert({
+      title: tender!.title,
+      tenderNo: tender!.tenderNo,
+      closingAt: tender!.closingAt.toISOString(),
+      portal: platform.name,
+      url: platform.url,
+    }).catch((err) => logger.error({ err, tenderId: tender!.id }, "new-tender Discord alert failed"));
   } catch (err) {
     next(err);
   }

@@ -18,6 +18,12 @@ const envSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().default("claude-sonnet-5"),
   PICCOLO_API_INTERNAL_TOKEN: z.string().min(16).optional(),
+  // Optional: a Discord incoming webhook URL. Ported from the proven
+  // notify/discord.py in SimsForTT/tenders - free, no bot/OAuth needed.
+  // Every alert Piccolo sends (new tender match, vault expiry) goes to
+  // this one channel if set; unset just means alerts are skipped, same
+  // graceful-no-op behavior as the original.
+  DISCORD_WEBHOOK_URL: z.string().url().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

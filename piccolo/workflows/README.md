@@ -30,7 +30,7 @@ split by whether the source needs a real browser:
 |---|---|---|
 | `n8n/rss-poll-template.json` | Method 1, RSS poll | Template - set the real feed URL and platform UUID |
 | `n8n/email-alert-parse-template.json` | Method 2, email alert parse | Template - needs a real IMAP mailbox + Anthropic API key as n8n credentials |
-| `n8n/vault-expiry-watcher.json` | Build sequence step 03 | Working once `ALERT_WEBHOOK_URL` is set - this one has no site-specific guesswork |
+| `n8n/vault-expiry-watcher.json` | Build sequence step 03 | Working once `DISCORD_WEBHOOK_URL` is set - this one has no site-specific guesswork |
 | `scrapers/etenders/scrape.ts` | Method 3, eTenders | Verified technique, needs the setup below to actually run |
 
 ## eTenders (GitHub Actions)
@@ -82,6 +82,24 @@ The 42-platform reference groups into six tiers. Before adding one here:
    URL/feed/selectors, and set `sourcePlatformId` to the UUID from step 2.
 4. Watch its health in the Platforms page for the first few runs before
    trusting it unattended.
+
+## Alerts
+
+Every genuinely new tender (from any source - RSS, eTenders, email) gets
+a Discord alert automatically, sent server-side from
+`POST /internal/leads` (`apps/api/src/lib/discord.ts`) - not something
+each workflow has to remember to do itself. Set `DISCORD_WEBHOOK_URL` in
+`.env` to turn it on; leave it blank and alerts just no-op, same as
+everything else here that's optional. This is a straight port of
+`notify/discord.py` from SimsForTT/tenders, which already proved the
+pattern works. The vault expiry watcher (`n8n/vault-expiry-watcher.json`)
+posts to the same webhook, so both land in one channel.
+
+If you'd rather use Slack or Teams instead of Discord, both also support
+incoming webhooks - the only change needed is the JSON body's key
+(`content` for Discord, `text` for Slack/Teams). `apps/api/src/lib/discord.ts`
+and the vault-expiry workflow's alert node are the two places that would
+need updating.
 
 ## Why leads have no owner
 
