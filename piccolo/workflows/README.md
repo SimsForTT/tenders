@@ -1,22 +1,56 @@
 # Discovery workflows
 
-n8n workflow exports for the discovery layer (artboard P2-02). These are
-templates, not finished automations - every one of them needs a human to
-fill in real feed URLs, real CSS selectors, or real mailbox credentials
-before it does anything useful. That's deliberate: none of this session
-can browse the live tender platforms to verify a selector still matches,
-and pretending otherwise would just mean everything silently returns zero
-tenders forever, which is exactly the failure mode artboard P2-02 warns
-about ("a silent scraper is worse than no scraper").
+Two different mechanisms cover the discovery layer (artboard P2-02),
+split by whether the source needs a real browser:
+
+- **n8n** (`n8n/`) for everything that's plain HTTP/IMAP - RSS polling,
+  email alert parsing, and the vault expiry watcher. These are templates:
+  every one needs a human to fill in real feed URLs or mailbox credentials
+  before it does anything useful. None of this session can browse the
+  live tender platforms to verify a selector still matches, and pretending
+  otherwise would just mean everything silently returns zero tenders
+  forever - exactly the failure mode artboard P2-02 warns about ("a
+  silent scraper is worse than no scraper").
+- **GitHub Actions** (`../../.github/workflows/etenders-scrape.yml` +
+  `scrapers/etenders/`) for eTenders specifically, because its listing
+  page only exposes reference numbers and exact closing dates through a
+  client-side DataTable's JS API, not through any CSS-selectable HTML -
+  scraping it needs a real Chromium instance. That doesn't fit n8n's
+  official Docker image (no browser included), so it runs as a scheduled
+  GitHub Actions job instead. **This one is not a template** - the
+  technique was verified against the live site (see
+  `scrapers/etenders/scrape.ts`'s header comment for where that
+  verification came from: a real run that pulled 100 tenders with correct
+  ref numbers and closing dates). What's still needed before the schedule
+  fires on its own is the setup in "eTenders (GitHub Actions)" below.
 
 ## What's here
 
-| File | Covers | Status |
+| Path | Covers | Status |
 |---|---|---|
-| `rss-poll-template.json` | Method 1, RSS poll | Template - set the real feed URL and platform UUID |
-| `etenders-scraper-template.json` | Method 3, HTML scrape | Template - selectors are placeholders, inspect the live page first |
-| `email-alert-parse-template.json` | Method 2, email alert parse | Template - needs a real IMAP mailbox + Anthropic API key as n8n credentials |
-| `vault-expiry-watcher.json` | Build sequence step 03 | Working once `ALERT_WEBHOOK_URL` is set - this one has no site-specific guesswork |
+| `n8n/rss-poll-template.json` | Method 1, RSS poll | Template - set the real feed URL and platform UUID |
+| `n8n/email-alert-parse-template.json` | Method 2, email alert parse | Template - needs a real IMAP mailbox + Anthropic API key as n8n credentials |
+| `n8n/vault-expiry-watcher.json` | Build sequence step 03 | Working once `ALERT_WEBHOOK_URL` is set - this one has no site-specific guesswork |
+| `scrapers/etenders/scrape.ts` | Method 3, eTenders | Verified technique, needs the setup below to actually run |
+
+## eTenders (GitHub Actions)
+
+1. `POST /platforms` (or seed data) gives you the eTenders platform's
+   UUID - `npm run db:seed` already creates one pointed at the real
+   listing URL.
+2. In the GitHub repo → Settings → Secrets and variables → Actions:
+   - **Variables**: `PICCOLO_API_BASE_URL` (your self-hosted API's public
+     HTTPS URL - see `../DEPLOYMENT.md`), `ETENDERS_PLATFORM_ID` (the UUID
+     from step 1).
+   - **Secrets**: `PICCOLO_API_INTERNAL_TOKEN` (same value as the API's
+     `.env`).
+3. The schedule trigger (`on.schedule` in the workflow file) only fires
+   from your repo's **default branch**. If this lands on a non-default
+   branch first, use Actions → "eTenders scrape" → Run workflow to test
+   it manually - the cron won't fire until the workflow file is on the
+   branch GitHub treats as default.
+4. Watch a couple of runs in the Actions tab before trusting the schedule
+   unattended, same as any other source.
 
 ## Importing
 

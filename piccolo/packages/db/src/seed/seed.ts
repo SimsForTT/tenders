@@ -12,7 +12,12 @@ const SEED_PLATFORMS = [
   { name: "TenderBulletins", url: "https://example-tenderbulletins.invalid/rss", tier: 5, ingestMethod: "rss" as const, cadence: "hourly" },
   { name: "TenderFlow", url: "https://example-tenderflow.invalid/rss", tier: 5, ingestMethod: "rss" as const, cadence: "hourly" },
   { name: "SA-Tenders", url: "https://example-sa-tenders.invalid/rss", tier: 5, ingestMethod: "rss" as const, cadence: "hourly" },
-  { name: "eTenders", url: "https://www.etenders.gov.za", tier: 1, ingestMethod: "scrape" as const, cadence: "twice_daily" },
+  // URL is the real, verified listing page - see
+  // workflows/scrapers/etenders/scrape.ts. After seeding, copy this
+  // platform's id into ETENDERS_PLATFORM_ID (a GitHub Actions repo
+  // variable) so the scrape workflow can report health/create leads
+  // against the right row.
+  { name: "eTenders", url: "https://www.etenders.gov.za/Home/opportunities?id=1", tier: 1, ingestMethod: "scrape" as const, cadence: "twice_daily" },
   { name: "SANRAL", url: "https://www.nra.co.za", tier: 2, ingestMethod: "scrape" as const, cadence: "twice_daily" },
 ];
 

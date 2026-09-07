@@ -1,0 +1,18 @@
+{
+  "name": "piccolo-etenders-scraper",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Standalone eTenders scraper for Piccolo's discovery layer. Runs on GitHub Actions, not inside the n8n container - see ../../README.md for why.",
+  "scripts": {
+    "scrape": "tsx scrape.ts"
+  },
+  "dependencies": {
+    "playwright": "^1.47.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.16.5",
+    "@types/node": "^20.14.15",
+    "typescript": "^5.5.4"
+  }
+}

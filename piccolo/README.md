@@ -19,7 +19,7 @@ web UI) is open source and runs on your own hardware.
 | Database | PostgreSQL 16 | Source of truth for everything (artboard P2-04) |
 | API | Node.js/TypeScript, Express, Drizzle ORM | Typed, parameterized queries, no ORM magic to audit |
 | Web tracker | React + Vite | My Tenders / Gate Queue / Expiry Watch views, tender detail, uploads |
-| Automation | n8n (self-hosted) | RSS/email/scrape discovery, vault expiry watcher |
+| Automation | n8n (self-hosted) + GitHub Actions | n8n for RSS/email/vault expiry; GitHub Actions + Playwright for eTenders, which needs a real browser (see `workflows/README.md`) |
 | OCR | Tesseract (via `tesseract.js`) + `pdf-parse` + `mammoth` + `exceljs` | Free, no cloud OCR bill |
 | Extraction | Claude (Anthropic API) | Structured extraction against the fixed schema in artboard P2-03 |
 
@@ -96,7 +96,9 @@ packages/
   shared/       Zod schemas and constants shared by api + web
   extraction/   OCR + Claude extraction pipeline
 workflows/
-  n8n/          Discovery-layer workflow templates (RSS/scrape/email/expiry watcher)
+  n8n/                  RSS/email/expiry-watcher workflow templates
+  scrapers/etenders/    Verified eTenders scraper (Playwright), run by
+                        ../../.github/workflows/etenders-scrape.yml
 ```
 
 ## What's a template vs. what's finished
@@ -106,8 +108,13 @@ seven steps at working-MVP depth, but two things need your own follow-up
 before they're production-grade:
 
 - **n8n workflow templates** (`workflows/n8n/`) have placeholder feed URLs
-  and CSS selectors - see `workflows/README.md` for what to fill in and why
-  nothing here pretends those work against live sites unverified.
+  - see `workflows/README.md` for what to fill in. The one exception is
+  eTenders: that scraper (`workflows/scrapers/etenders/`) is a real,
+  previously-verified technique (confirmed against the live site, not a
+  guess), running on a GitHub Actions schedule rather than n8n because it
+  needs a real browser - see `workflows/README.md` for the one-time setup
+  (repo variables/secrets) it still needs before its schedule fires
+  unattended.
 - **The stage-13 completeness check** automates what the database can
   verify and asks the tender owner to confirm the rest by hand (blank-page
   detection, signature presence, BOQ reconciliation) - see `SECURITY.md`

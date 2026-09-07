@@ -1,0 +1,32 @@
+name: eTenders scrape (Piccolo discovery layer)
+
+on:
+  schedule:
+    # eTenders is designed as a "twice daily" source (artboard P2-02).
+    # 05:00 and 17:00 UTC = 07:00 and 19:00 SAST.
+    - cron: "0 5 * * *"
+    - cron: "0 17 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: piccolo/workflows/scrapers/etenders
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run scrape
+        env:
+          PICCOLO_API_BASE_URL: ${{ vars.PICCOLO_API_BASE_URL }}
+          PICCOLO_API_INTERNAL_TOKEN: ${{ secrets.PICCOLO_API_INTERNAL_TOKEN }}
+          ETENDERS_PLATFORM_ID: ${{ vars.ETENDERS_PLATFORM_ID }}
