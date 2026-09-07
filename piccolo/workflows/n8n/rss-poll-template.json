@@ -1,0 +1,99 @@
+{
+  "name": "Piccolo - RSS poll template",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours" }] }
+      },
+      "id": "schedule-trigger",
+      "name": "Hourly schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-200, 0]
+    },
+    {
+      "parameters": {
+        "url": "https://REPLACE-WITH-REAL-FEED-URL.example/rss"
+      },
+      "id": "rss-read",
+      "name": "Read RSS feed",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [40, 0],
+      "notes": "One copy of this node per feed. Set the real feed URL, then duplicate this whole workflow per platform (TenderBulletins / TenderFlow / SA-Tenders per the seed data) and set PLATFORM_ID below to match."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalise to Piccolo's lead shape and apply the keyword/region/grade\n// filter from artboard P2-02. Adjust the keyword list to match your\n// current SA_Tender_Platforms_Reference.\nconst KEYWORDS = ['road maintenance','road rehabilitation','reseal','asphalt','bitumen','cold mix','hot mix','paving','patching','pothole repair','surfacing','civil works','earthworks','stormwater','culvert','drainage'];\nconst PLATFORM_ID = 'REPLACE-WITH-PLATFORM-UUID-FROM-PICCOLO';\n\nconst seen = new Set();\nconst out = [];\nfor (const item of items) {\n  const title = (item.json.title || '').toString();\n  const summary = (item.json.contentSnippet || item.json.content || '').toString();\n  const haystack = (title + ' ' + summary).toLowerCase();\n  const matches = KEYWORDS.some((k) => haystack.includes(k));\n  if (!matches) continue;\n\n  // Dedupe within this run on title (the real dedupe-on-hash of tender\n  // number + client happens server-side via the DB unique index; this is\n  // just to avoid posting the same RSS entry twice in one poll).\n  const key = title.trim().toLowerCase();\n  if (seen.has(key)) continue;\n  seen.add(key);\n\n  out.push({\n    json: {\n      tenderNo: (item.json.guid || item.json.link || title).toString().slice(0, 120),\n      client: 'Unknown, from RSS - confirm on capture',\n      title: title.slice(0, 500),\n      closingAt: item.json.isoDate || new Date(Date.now() + 21 * 86400000).toISOString(),\n      sourcePlatformId: PLATFORM_ID,\n    },\n  });\n}\nreturn out;"
+      },
+      "id": "normalize-filter",
+      "name": "Normalise, filter, dedupe",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [280, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.PICCOLO_API_BASE_URL}}/internal/leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "X-Internal-Token", "value": "={{$env.PICCOLO_API_INTERNAL_TOKEN}}" }]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "tenderNo", "value": "={{$json.tenderNo}}" },
+            { "name": "client", "value": "={{$json.client}}" },
+            { "name": "title", "value": "={{$json.title}}" },
+            { "name": "closingAt", "value": "={{$json.closingAt}}" },
+            { "name": "sourcePlatformId", "value": "={{$json.sourcePlatformId}}" }
+          ]
+        },
+        "options": { "response": { "response": { "neverError": true } } }
+      },
+      "id": "create-lead",
+      "name": "POST /internal/leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.PICCOLO_API_BASE_URL}}/internal/platforms/REPLACE-WITH-PLATFORM-UUID-FROM-PICCOLO/health",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "X-Internal-Token", "value": "={{$env.PICCOLO_API_INTERNAL_TOKEN}}" }]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "resultCount", "value": "={{$items().length}}" },
+            { "name": "success", "value": true }
+          ]
+        }
+      },
+      "id": "report-health",
+      "name": "POST platform health",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 180],
+      "notes": "\"The failure that matters\": this always reports success=true because the RSS read itself succeeded. Wire a second branch off Read RSS feed's error output to call this with success=false so a broken feed actually flips platform health."
+    }
+  ],
+  "connections": {
+    "Hourly schedule": { "main": [[{ "node": "Read RSS feed", "type": "main", "index": 0 }]] },
+    "Read RSS feed": {
+      "main": [
+        [
+          { "node": "Normalise, filter, dedupe", "type": "main", "index": 0 },
+          { "node": "POST platform health", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Normalise, filter, dedupe": { "main": [[{ "node": "POST /internal/leads", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<meta name="omelette-owns-print" content="true">
+<link rel="stylesheet" href="_ds/modernist-09a89f30-d61b-494a-a860-ec4601b8c56d/styles.css">
+<script src="_ds/modernist-09a89f30-d61b-494a-a860-ec4601b8c56d/_ds_bundle.js"></script>
+<style>
+  :root {
+    --color-accent: #1f45c4;
+    --color-accent-100: #eff2fd;
+    --color-accent-200: #d8e0fa;
+    --color-accent-300: #b3c2f4;
+    --color-accent-400: #7e96e9;
+    --color-accent-500: #3d63d8;
+    --color-accent-600: #1836a6;
+    --color-accent-700: #142b83;
+    --color-accent-800: #0f2060;
+    --color-accent-900: #0b1743;
+    --alert: #e2650f;
+    --alert-100: #fdf1e5;
+    --alert-700: #94420a;
+  }
+  body { background: var(--color-neutral-300); }
+  @page { size: 420mm 297mm; margin: 0; }
+  @media print {
+    body { background: #fff; }
+    section { box-shadow: none !important; margin: 0 !important; break-after: page; }
+    section:last-of-type { break-after: auto; }
+  }
+</style>
+</helmet>
+
+<section data-screen-label="P2-01 Architecture" style="width:1587px;height:1123px;background:var(--color-bg);color:var(--color-text);padding:52px 60px;display:flex;flex-direction:column;font-family:var(--font-body);box-shadow:var(--shadow-lg);margin:0 auto 48px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--color-text);padding-bottom:12px;margin-bottom:16px">
+    <div style="display:flex;align-items:baseline;gap:20px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:38px;line-height:1;color:var(--color-accent)">01</div>
+      <h2 style="font-size:34px;line-height:1;letter-spacing:-0.02em;margin:0">System architecture</h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px"><img src="assets/birchleigh-mark.png" alt="Birchleigh Industries" style="height:66px;width:auto;display:block"><div style="text-align:right;font-family:var(--font-heading);font-weight:600;font-size:12px;line-height:1.5;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-700)">Phase 2 working document<br>Internal, not for the team pack</div></div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:20px;border-bottom:2px solid var(--color-divider);padding-bottom:14px;margin-bottom:18px">
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1.2;color:var(--color-accent);white-space:nowrap">Machines find, read and assemble. People decide.</div>
+    <div style="font-size:15px;line-height:1.4;color:var(--color-neutral-800)">Every gate in Phase 1 stays human. Automation removes the typing, the searching and the checking, not the judgement or the sign off.</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0;align-items:stretch;margin-bottom:18px">
+    <div style="border:2px solid var(--color-text);background:#fff;padding:12px;display:flex;flex-direction:column;gap:6px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent)">A. SOURCES</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:19px;line-height:1.1">42+ platforms, six tiers</div>
+      <div style="font-size:14px;line-height:1.3;color:var(--color-neutral-800)">eTenders, SANRAL, provincial, municipal, aggregators, donor funded. Mixed RSS, HTML, email.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-left:0;background:#fff;padding:12px;display:flex;flex-direction:column;gap:6px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent)">B. INGESTION</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:19px;line-height:1.1">n8n workflows</div>
+      <div style="font-size:14px;line-height:1.3;color:var(--color-neutral-800)">One workflow per ingestion method. Scheduled polls, dedupe on hash, normalise to one record shape.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-left:0;background:#fff;padding:12px;display:flex;flex-direction:column;gap:6px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent)">C. STORE</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:19px;line-height:1.1">Postgres and file store</div>
+      <div style="font-size:14px;line-height:1.3;color:var(--color-neutral-800)">Structured records in SQL, source documents on disk or object storage, one folder per tender.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-left:0;background:#fff;padding:12px;display:flex;flex-direction:column;gap:6px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent)">D. EXTRACTION</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:19px;line-height:1.1">OCR then Claude</div>
+      <div style="font-size:14px;line-height:1.3;color:var(--color-neutral-800)">Textract or Azure Document Intelligence for layout and text. Claude turns text into the returnables checklist and requirements matrix.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-left:0;background:#fff;padding:12px;display:flex;flex-direction:column;gap:6px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent)">E. WORK SURFACE</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:19px;line-height:1.1">Airtable tracker</div>
+      <div style="font-size:14px;line-height:1.3;color:var(--color-neutral-800)">The pipeline as views: by stage, by owner, by closing date. Gate buttons write back to SQL.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-left:0;background:#fff;padding:12px;display:flex;flex-direction:column;gap:6px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent)">F. OUTPUT</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:19px;line-height:1.1">Packs and checks</div>
+      <div style="font-size:14px;line-height:1.3;color:var(--color-neutral-800)">Pre filled forms, assembled returnables set, completeness report before upload.</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;flex:1;min-height:0">
+    <div style="border:2px solid var(--color-text);background:#fff;padding:16px;display:flex;flex-direction:column">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-700);margin-bottom:10px">HUMAN IN THE LOOP, BY STAGE</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;gap:14px;border-bottom:2px solid var(--color-divider);padding-bottom:8px"><span style="font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent);width:64px;flex:none">01</span><span style="font-size:15px;line-height:1.3">Machine captures and logs. Owner assignment stays manual, one tender one owner.</span></div>
+        <div style="display:flex;gap:14px;border-bottom:2px solid var(--color-divider);padding-bottom:8px"><span style="font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent);width:64px;flex:none">02</span><span style="font-size:15px;line-height:1.3">Machine scores the go or no go criteria it can see. The decision and the signature stay human.</span></div>
+        <div style="display:flex;gap:14px;border-bottom:2px solid var(--color-divider);padding-bottom:8px"><span style="font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent);width:64px;flex:none">04</span><span style="font-size:15px;line-height:1.3">Machine drafts the checklist and matrix. Owner verifies every line before work starts.</span></div>
+        <div style="display:flex;gap:14px;border-bottom:2px solid var(--color-divider);padding-bottom:8px"><span style="font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent);width:64px;flex:none">05</span><span style="font-size:15px;line-height:1.3">Machine checks Vault expiry dates against the closing date and raises the alert.</span></div>
+        <div style="display:flex;gap:14px;border-bottom:2px solid var(--color-divider);padding-bottom:8px"><span style="font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent);width:64px;flex:none">07</span><span style="font-size:15px;line-height:1.3">Machine suggests rates from history. Pricing and margin remain the owner's call.</span></div>
+        <div style="display:flex;gap:14px;border-bottom:2px solid var(--color-divider);padding-bottom:8px"><span style="font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent);width:64px;flex:none">10</span><span style="font-size:15px;line-height:1.3">Machine pre fills standing details and assembles in tender order. Signatures stay wet ink.</span></div>
+        <div style="display:flex;gap:14px"><span style="font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent);width:64px;flex:none">13</span><span style="font-size:15px;line-height:1.3">Machine runs the completeness scan. Submission is still a person clicking upload.</span></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;min-height:0">
+      <div style="border:2px solid var(--color-text);background:#fff;padding:16px;flex:1">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-700);margin-bottom:10px">FEEDBACK LOOP, STAGE 15</div>
+        <div style="display:flex;align-items:stretch;gap:0">
+          <div style="flex:1;border:2px solid var(--color-text);padding:8px 10px"><div style="font-family:var(--font-heading);font-weight:800;font-size:16px">Outcome recorded</div><div style="font-size:14px;color:var(--color-neutral-700);line-height:1.3">Award, loss, price gap, winner</div></div>
+          <div style="width:26px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-neutral-600)">→</div>
+          <div style="flex:1;border:2px solid var(--color-text);padding:8px 10px"><div style="font-family:var(--font-heading);font-weight:800;font-size:16px">Rate Library</div><div style="font-size:14px;color:var(--color-neutral-700);line-height:1.3">Priced items written to SQL with escalation</div></div>
+          <div style="width:26px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-neutral-600)">→</div>
+          <div style="flex:1;border:2px solid var(--color-accent);padding:8px 10px"><div style="font-family:var(--font-heading);font-weight:800;font-size:16px">Next bid priced faster</div><div style="font-size:14px;color:var(--color-neutral-700);line-height:1.3">Suggested rates at stage 07</div></div>
+        </div>
+      </div>
+      <div style="border:6px solid var(--alert);background:var(--alert-100);padding:16px">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--alert-700);margin-bottom:8px">RULES THAT DO NOT BEND</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:15px;line-height:1.3;color:var(--alert-700)">
+          <div>No automated submission. Ever.</div>
+          <div>No machine written price.</div>
+          <div>Extraction output is a draft until a person signs it.</div>
+          <div>Source documents are stored unaltered.</div>
+          <div>Every automated action is logged with a timestamp.</div>
+          <div>If the automation is down, Phase 1 still runs by hand.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="P2-02 Discovery" style="width:1587px;height:1123px;background:var(--color-bg);color:var(--color-text);padding:52px 60px;display:flex;flex-direction:column;font-family:var(--font-body);box-shadow:var(--shadow-lg);margin:0 auto 48px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--color-text);padding-bottom:12px;margin-bottom:18px">
+    <div style="display:flex;align-items:baseline;gap:20px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:38px;line-height:1;color:var(--color-accent)">02</div>
+      <h2 style="font-size:34px;line-height:1;letter-spacing:-0.02em;margin:0">Discovery layer</h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px"><img src="assets/birchleigh-mark.png" alt="Birchleigh Industries" style="height:66px;width:auto;display:block"><div style="text-align:right;font-family:var(--font-heading);font-weight:600;font-size:12px;line-height:1.5;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-700)">Replaces the manual watchlist<br>Stage 00 and 01</div></div>
+  </div>
+
+  <div style="font-size:16px;line-height:1.4;color:var(--color-neutral-800);max-width:1150px;margin-bottom:18px">Four ingestion methods cover every platform in the reference. Build them in this order: the RSS feeds are a weekend, the scrapers are the long tail.</div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:20px">
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--color-accent);background:#fff;padding:14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent);margin-bottom:4px">METHOD 1, EASIEST</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:24px;line-height:1.05;margin-bottom:8px">RSS poll</div>
+      <div style="font-size:15px;line-height:1.35;color:var(--color-neutral-800);margin-bottom:10px">n8n RSS node on a schedule. No parsing, no breakage, no blocking.</div>
+      <div style="border-top:2px solid var(--color-divider);padding-top:8px;font-size:15px;line-height:1.35"><strong>TenderBulletins</strong>, <strong>TenderFlow</strong>, <strong>SA-Tenders</strong></div>
+      <div style="margin-top:10px"><span style="border:2px solid var(--color-accent);color:var(--color-accent-700);font-family:var(--font-heading);font-weight:800;font-size:12px;padding:1px 7px">HOURLY</span></div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--color-accent);background:#fff;padding:14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent);margin-bottom:4px">METHOD 2</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:24px;line-height:1.05;margin-bottom:8px">Email alert parse</div>
+      <div style="font-size:15px;line-height:1.35;color:var(--color-neutral-800);margin-bottom:10px">Subscribe the shared mailbox to every platform that offers alerts. n8n IMAP node reads, Claude extracts the fields.</div>
+      <div style="border-top:2px solid var(--color-divider);padding-top:8px;font-size:15px;line-height:1.35">Aggregator alerts, <strong>OnlineTenders</strong>, client and main contractor invitations</div>
+      <div style="margin-top:10px"><span style="border:2px solid var(--color-accent);color:var(--color-accent-700);font-family:var(--font-heading);font-weight:800;font-size:12px;padding:1px 7px">ON ARRIVAL</span></div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--color-accent);background:#fff;padding:14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent);margin-bottom:4px">METHOD 3</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:24px;line-height:1.05;margin-bottom:8px">HTML scrape</div>
+      <div style="font-size:15px;line-height:1.35;color:var(--color-neutral-800);margin-bottom:10px">n8n HTTP request plus CSS selectors. One workflow per site, versioned, with a failure alert when the selector stops matching.</div>
+      <div style="border-top:2px solid var(--color-divider);padding-top:8px;font-size:15px;line-height:1.35"><strong>eTenders</strong>, <strong>SANRAL</strong>, Gauteng DID, municipalities.co.za, ProTenders, Mogale City</div>
+      <div style="margin-top:10px"><span style="border:2px solid var(--color-accent);color:var(--color-accent-700);font-family:var(--font-heading);font-weight:800;font-size:12px;padding:1px 7px">TWICE DAILY</span></div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--alert);background:#fff;padding:14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--alert-700);margin-bottom:4px">METHOD 4, LAST RESORT</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:24px;line-height:1.05;margin-bottom:8px">Manual check, logged</div>
+      <div style="font-size:15px;line-height:1.35;color:var(--color-neutral-800);margin-bottom:10px">Sites behind logins or javascript that resists scraping. The person still checks, but records the check in the tracker so coverage is visible.</div>
+      <div style="border-top:2px solid var(--color-divider);padding-top:8px;font-size:15px;line-height:1.35">Portals requiring authentication, donor platforms</div>
+      <div style="margin-top:10px"><span style="border:2px solid var(--alert);color:var(--alert-700);font-family:var(--font-heading);font-weight:800;font-size:12px;padding:1px 7px">WEEKLY</span></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:24px;flex:1;min-height:0">
+    <div style="border:2px solid var(--color-text);background:#fff;padding:16px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-700);margin-bottom:12px">PIPELINE INSIDE EACH WORKFLOW</div>
+      <div style="display:flex;align-items:stretch;gap:0">
+        <div style="flex:1;border:2px solid var(--color-text);padding:8px 10px"><div style="font-family:var(--font-heading);font-weight:800;font-size:15px">1. Fetch</div><div style="font-size:14px;color:var(--color-neutral-700);line-height:1.3">Poll on schedule</div></div>
+        <div style="width:20px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-600)">→</div>
+        <div style="flex:1;border:2px solid var(--color-text);padding:8px 10px"><div style="font-family:var(--font-heading);font-weight:800;font-size:15px">2. Normalise</div><div style="font-size:14px;color:var(--color-neutral-700);line-height:1.3">One record shape</div></div>
+        <div style="width:20px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-600)">→</div>
+        <div style="flex:1;border:2px solid var(--color-text);padding:8px 10px"><div style="font-family:var(--font-heading);font-weight:800;font-size:15px">3. Dedupe</div><div style="font-size:14px;color:var(--color-neutral-700);line-height:1.3">Hash of number plus client</div></div>
+        <div style="width:20px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-600)">→</div>
+        <div style="flex:1;border:2px solid var(--color-text);padding:8px 10px"><div style="font-family:var(--font-heading);font-weight:800;font-size:15px">4. Filter</div><div style="font-size:14px;color:var(--color-neutral-700);line-height:1.3">Keywords and CIDB grade</div></div>
+        <div style="width:20px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-600)">→</div>
+        <div style="flex:1;border:2px solid var(--color-accent);padding:8px 10px"><div style="font-family:var(--font-heading);font-weight:800;font-size:15px">5. Create</div><div style="font-size:14px;color:var(--color-neutral-700);line-height:1.3">Row in tracker, alert to owner</div></div>
+      </div>
+      <div style="height:2px;background:var(--color-divider);margin:16px 0"></div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-700);margin-bottom:8px">FILTER KEYWORDS, FROM THE PLATFORMS REFERENCE</div>
+      <div style="font-size:15px;line-height:1.5">road maintenance, road rehabilitation, reseal, asphalt, bitumen, cold mix, hot mix, paving, patching, pothole repair, surfacing, civil works, earthworks, stormwater, culvert, drainage. Region filter on Gauteng, North West, Northern Cape and Eastern Cape. Grade filter on CIDB 5CE and above.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="border:2px solid var(--color-text);background:#fff;padding:16px;flex:1">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-700);margin-bottom:10px">ALERT ROUTING</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.3">
+          <div style="border-bottom:2px solid var(--color-divider);padding-bottom:6px">Match on all filters, closing more than 14 days out. Daily digest to the shared mailbox.</div>
+          <div style="border-bottom:2px solid var(--color-divider);padding-bottom:6px">Match on all filters, closing inside 14 days. Immediate Teams message, tagged urgent.</div>
+          <div style="border-bottom:2px solid var(--color-divider);padding-bottom:6px">Partial match. Weekly review list, no alert.</div>
+          <div>Scraper failure or zero results where results are expected. Alert to you, not the team.</div>
+        </div>
+      </div>
+      <div style="border:6px solid var(--alert);background:var(--alert-100);padding:14px">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--alert-700);margin-bottom:6px">THE FAILURE THAT MATTERS</div>
+        <div style="font-size:15px;line-height:1.35;color:var(--alert-700)">A silent scraper is worse than no scraper. If a workflow returns nothing for two consecutive runs on a site that is normally active, treat it as broken and fall back to the manual check until it is fixed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section data-screen-label="P2-03 Capture" style="width:1587px;height:1123px;background:var(--color-bg);color:var(--color-text);padding:52px 60px;display:flex;flex-direction:column;font-family:var(--font-body);box-shadow:var(--shadow-lg);margin:0 auto 48px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--color-text);padding-bottom:12px;margin-bottom:18px">
+    <div style="display:flex;align-items:baseline;gap:20px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:38px;line-height:1;color:var(--color-accent)">03</div>
+      <h2 style="font-size:34px;line-height:1;letter-spacing:-0.02em;margin:0">Document capture, stage 04</h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px"><img src="assets/birchleigh-mark.png" alt="Birchleigh Industries" style="height:66px;width:auto;display:block"><div style="text-align:right;font-family:var(--font-heading);font-weight:600;font-size:12px;line-height:1.5;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-700)">OCR and extraction<br>Highest value automation</div></div>
+  </div>
+
+  <div style="font-size:16px;line-height:1.4;color:var(--color-neutral-800);max-width:1150px;margin-bottom:20px">Deconstructing a 300 page tender by hand is where two days disappear. This chain turns the document into a checklist and a matrix in under ten minutes, then hands it to the owner to verify.</div>
+
+  <div style="display:flex;align-items:stretch;gap:0;margin-bottom:22px">
+    <div style="flex:1;border:2px solid var(--color-text);background:#fff;padding:12px;display:flex;flex-direction:column;gap:5px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-600)">STEP 1</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:19px;line-height:1.1">Ingest</div>
+      <div style="font-size:14px;line-height:1.3;color:var(--color-neutral-800)">Tender pack lands in the job folder. Watcher fires. Original stored unaltered.</div>
+    </div>
+    <div style="width:26px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-neutral-600)">→</div>
+    <div style="flex:1;border:2px solid var(--color-text);background:#fff;padding:12px;display:flex;flex-direction:column;gap:5px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-600)">STEP 2</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:19px;line-height:1.1">Split and classify</div>
+      <div style="font-size:14px;line-height:1.3;color:var(--color-neutral-800)">Break into sections. Tag each as conditions, specification, BOQ, returnable form or annexure.</div>
+    </div>
+    <div style="width:26px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-neutral-600)">→</div>
+    <div style="flex:1;border:2px solid var(--color-text);background:#fff;padding:12px;display:flex;flex-direction:column;gap:5px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-600)">STEP 3</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:19px;line-height:1.1">OCR</div>
+      <div style="font-size:14px;line-height:1.3;color:var(--color-neutral-800)">Textract or Azure Document Intelligence. Tables kept as tables. Page numbers preserved for traceability.</div>
+    </div>
+    <div style="width:26px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-neutral-600)">→</div>
+    <div style="flex:1;border:2px solid var(--color-accent);background:#fff;padding:12px;display:flex;flex-direction:column;gap:5px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent)">STEP 4</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:19px;line-height:1.1">Claude extraction</div>
+      <div style="font-size:14px;line-height:1.3;color:var(--color-neutral-800)">Structured output against a fixed schema. Every field carries the page it came from.</div>
+    </div>
+    <div style="width:26px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-neutral-600)">→</div>
+    <div style="flex:1;border:6px solid var(--alert);background:#fff;padding:10px 12px;display:flex;flex-direction:column;gap:5px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--alert-700)">STEP 5, HUMAN</div>
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:19px;line-height:1.1">Owner verifies</div>
+      <div style="font-size:14px;line-height:1.3;color:var(--color-neutral-800)">Line by line against the source page. Nothing proceeds on unverified extraction.</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;flex:1;min-height:0">
+    <div style="border:2px solid var(--color-text);background:#fff;padding:16px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-700);margin-bottom:10px">WHAT CLAUDE EXTRACTS</div>
+      <div style="display:flex;flex-direction:column;gap:7px;font-size:15px;line-height:1.3">
+        <div style="border-bottom:2px solid var(--color-divider);padding-bottom:6px">Tender number, client, description, closing date and time</div>
+        <div style="border-bottom:2px solid var(--color-divider);padding-bottom:6px">Briefing session, compulsory or not, date and venue</div>
+        <div style="border-bottom:2px solid var(--color-divider);padding-bottom:6px">Query deadline</div>
+        <div style="border-bottom:2px solid var(--color-divider);padding-bottom:6px">Every returnable form, with its reference and whether it is mandatory</div>
+        <div style="border-bottom:2px solid var(--color-divider);padding-bottom:6px">Eligibility requirements, CIDB grade and class, B-BBEE requirement</div>
+        <div style="border-bottom:2px solid var(--color-divider);padding-bottom:6px">Bond, guarantee and insurance requirements</div>
+        <div style="border-bottom:2px solid var(--color-divider);padding-bottom:6px">Evaluation criteria and weightings</div>
+        <div style="border-bottom:2px solid var(--color-divider);padding-bottom:6px">JV and local content requirements</div>
+        <div>Submission method, address or portal, format rules</div>
+      </div>
+    </div>
+    <div style="border:2px solid var(--color-text);background:#fff;padding:16px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-700);margin-bottom:10px">TWO OUTPUTS, BOTH DRAFTS</div>
+      <div style="border:2px solid var(--color-accent);padding:10px 12px;margin-bottom:12px">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">Returnables checklist</div>
+        <div style="font-size:15px;line-height:1.35;color:var(--color-neutral-800)">One row per required document, with source page, mandatory flag, where it comes from and current status. Writes straight into the tracker.</div>
+      </div>
+      <div style="border:2px solid var(--color-accent);padding:10px 12px;margin-bottom:12px">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:18px">Requirements matrix</div>
+        <div style="font-size:15px;line-height:1.35;color:var(--color-neutral-800)">One row per requirement, with the evidence that satisfies it and the gap where none exists. Feeds the go or no go tree at gate 1.</div>
+      </div>
+      <div style="font-size:15px;line-height:1.35;color:var(--color-neutral-700)">Both are marked DRAFT until the owner signs off. The tracker will not advance past stage 04 while a draft flag is set.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="border:2px solid var(--color-text);background:#fff;padding:16px;flex:1">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-700);margin-bottom:10px">CONFIDENCE HANDLING</div>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:15px;line-height:1.3">
+          <div style="display:flex;gap:12px;border-bottom:2px solid var(--color-divider);padding-bottom:7px"><span style="width:16px;height:16px;background:var(--color-text);flex:none;margin-top:2px"></span><span>Found and unambiguous. Written as normal, still verified.</span></div>
+          <div style="display:flex;gap:12px;border-bottom:2px solid var(--color-divider);padding-bottom:7px"><span style="width:16px;height:16px;border:2px solid var(--alert);background:var(--alert-100);flex:none;margin-top:2px"></span><span>Found but ambiguous or conflicting between sections. Flagged for the owner with both readings and both page numbers.</span></div>
+          <div style="display:flex;gap:12px"><span style="width:16px;height:16px;border:2px solid var(--color-neutral-500);flex:none;margin-top:2px"></span><span>Not found. Left empty and listed as an open question, never guessed.</span></div>
+        </div>
+      </div>
+      <div style="border:6px solid var(--alert);background:var(--alert-100);padding:14px">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--alert-700);margin-bottom:6px">TEST BEFORE TRUST</div>
+        <div style="font-size:15px;line-height:1.35;color:var(--alert-700)">Run the chain against twenty past tenders we already deconstructed by hand. Compare line by line. Do not put it in front of the team until the checklist matches on every mandatory returnable.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="P2-04 Data model" style="width:1587px;height:1123px;background:var(--color-bg);color:var(--color-text);padding:52px 60px;display:flex;flex-direction:column;font-family:var(--font-body);box-shadow:var(--shadow-lg);margin:0 auto 48px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--color-text);padding-bottom:12px;margin-bottom:18px">
+    <div style="display:flex;align-items:baseline;gap:20px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:38px;line-height:1;color:var(--color-accent)">04</div>
+      <h2 style="font-size:34px;line-height:1;letter-spacing:-0.02em;margin:0">Data model</h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px"><img src="assets/birchleigh-mark.png" alt="Birchleigh Industries" style="height:66px;width:auto;display:block"><div style="text-align:right;font-family:var(--font-heading);font-weight:600;font-size:12px;line-height:1.5;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-700)">Postgres is the record<br>Airtable is the view</div></div>
+  </div>
+
+  <div style="font-size:16px;line-height:1.4;color:var(--color-neutral-800);max-width:1150px;margin-bottom:20px">One rule keeps this sane. SQL owns the truth, Airtable owns the interface. Anything typed in Airtable syncs back to SQL, nothing lives only in Airtable.</div>
+
+  <div style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:18px;min-height:0">
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--color-accent);background:#fff;padding:12px 14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1;margin-bottom:8px">tenders</div>
+      <div style="font-size:14px;line-height:1.5;color:var(--color-neutral-800)">id, tender_no, client, title, sector, region, value_band, closing_at, briefing_at, query_deadline_at, source_platform_id, stage, owner_id, status, created_at</div>
+      <div style="margin-top:10px;border-top:2px solid var(--color-divider);padding-top:6px;font-size:14px;color:var(--color-neutral-700)">The spine. One row per tender, from capture to outcome.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--color-accent);background:#fff;padding:12px 14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1;margin-bottom:8px">platforms</div>
+      <div style="font-size:14px;line-height:1.5;color:var(--color-neutral-800)">id, name, url, tier, ingest_method, cadence, last_success_at, last_result_count, health</div>
+      <div style="margin-top:10px;border-top:2px solid var(--color-divider);padding-top:6px;font-size:14px;color:var(--color-neutral-700)">The 42 platforms, with the health field that catches a silent scraper.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--color-accent);background:#fff;padding:12px 14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1;margin-bottom:8px">returnables</div>
+      <div style="font-size:14px;line-height:1.5;color:var(--color-neutral-800)">id, tender_id, reference, name, mandatory, source_page, satisfied_by, doc_id, status, verified_by, verified_at</div>
+      <div style="margin-top:10px;border-top:2px solid var(--color-divider);padding-top:6px;font-size:14px;color:var(--color-neutral-700)">Written by extraction, closed out by the owner. Drives gate 2.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--alert);background:#fff;padding:12px 14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1;margin-bottom:8px">vault_docs</div>
+      <div style="font-size:14px;line-height:1.5;color:var(--color-neutral-800)">id, category, name, file_path, issued_at, expires_at, issuing_body, replaces_id, current</div>
+      <div style="margin-top:10px;border-top:2px solid var(--alert);padding-top:6px;font-size:14px;color:var(--alert-700)">A nightly job compares expires_at to every open closing date and raises the alert.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--color-accent);background:#fff;padding:12px 14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1;margin-bottom:8px">rate_items</div>
+      <div style="font-size:14px;line-height:1.5;color:var(--color-neutral-800)">id, description, unit, rate, priced_at, tender_id, client, region, won, escalation_index, notes</div>
+      <div style="margin-top:10px;border-top:2px solid var(--color-divider);padding-top:6px;font-size:14px;color:var(--color-neutral-700)">The Rate Library. Query by description and region, escalate to today, suggest at stage 07.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--color-accent);background:#fff;padding:12px 14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1;margin-bottom:8px">documents</div>
+      <div style="font-size:14px;line-height:1.5;color:var(--color-neutral-800)">id, tender_id, kind, file_path, checksum, ocr_status, pages, uploaded_by, uploaded_at</div>
+      <div style="margin-top:10px;border-top:2px solid var(--color-divider);padding-top:6px;font-size:14px;color:var(--color-neutral-700)">Every file, with a checksum so an altered original is detectable.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--color-accent);background:#fff;padding:12px 14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1;margin-bottom:8px">gates</div>
+      <div style="font-size:14px;line-height:1.5;color:var(--color-neutral-800)">id, tender_id, gate_no, decision, decided_by, decided_at, reason, evidence_url</div>
+      <div style="margin-top:10px;border-top:2px solid var(--color-divider);padding-top:6px;font-size:14px;color:var(--color-neutral-700)">The audit trail. A tender cannot change stage without the matching gate row.</div>
+    </div>
+    <div style="border:2px solid var(--color-text);border-top:8px solid var(--color-accent);background:#fff;padding:12px 14px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1;margin-bottom:8px">outcomes</div>
+      <div style="font-size:14px;line-height:1.5;color:var(--color-neutral-800)">id, tender_id, result, our_price, winning_price, winner, awarded_at, lessons, debrief_by</div>
+      <div style="margin-top:10px;border-top:2px solid var(--color-divider);padding-top:6px;font-size:14px;color:var(--color-neutral-700)">Closes the loop. Price gap analysis becomes possible the day this table has rows.</div>
+    </div>
+  </div>
+
+  <div style="border-top:2px solid var(--color-text);margin-top:18px;padding-top:14px;display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:26px">
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-700);max-width:110px">AIRTABLE<br>VIEWS</div>
+    <div><div style="font-family:var(--font-heading);font-weight:800;font-size:14px;color:var(--color-accent-700);margin-bottom:4px">MY TENDERS</div><div style="font-size:15px;line-height:1.35">Filtered to owner, sorted by closing date, T minus days as a formula field.</div></div>
+    <div><div style="font-family:var(--font-heading);font-weight:800;font-size:14px;color:var(--color-accent-700);margin-bottom:4px">GATE QUEUE</div><div style="font-size:15px;line-height:1.35">Everything waiting on a signature, grouped by gate number.</div></div>
+    <div><div style="font-family:var(--font-heading);font-weight:800;font-size:14px;color:var(--alert-700);margin-bottom:4px">EXPIRY WATCH</div><div style="font-size:15px;line-height:1.35">Vault documents expiring before any open closing date. Should always be empty.</div></div>
+  </div>
+</section>
+
+<section data-screen-label="P2-05 Assembly" style="width:1587px;height:1123px;background:var(--color-bg);color:var(--color-text);padding:52px 60px;display:flex;flex-direction:column;font-family:var(--font-body);box-shadow:var(--shadow-lg);margin:0 auto 48px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--color-text);padding-bottom:12px;margin-bottom:18px">
+    <div style="display:flex;align-items:baseline;gap:20px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:38px;line-height:1;color:var(--color-accent)">05</div>
+      <h2 style="font-size:34px;line-height:1;letter-spacing:-0.02em;margin:0">Assembly and submission check</h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px"><img src="assets/birchleigh-mark.png" alt="Birchleigh Industries" style="height:66px;width:auto;display:block"><div style="text-align:right;font-family:var(--font-heading);font-weight:600;font-size:12px;line-height:1.5;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-700)">Stages 10 and 13<br>Where bids die on technicalities</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;flex:1;min-height:0">
+    <div style="display:flex;flex-direction:column;gap:16px;min-height:0">
+      <div style="border-bottom:2px solid var(--color-text);padding-bottom:8px">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent);margin-bottom:4px">STAGE 10</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1.1">Pre fill and assemble</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="border:2px solid var(--color-text);background:#fff;padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:17px">1. Map the fields</div><div style="font-size:15px;line-height:1.35;color:var(--color-neutral-800)">Claude reads each returnable form and maps its fields to our standing company record. Company name, registration, VAT, CIDB, B-BBEE, banking, contact, addresses.</div></div>
+        <div style="border:2px solid var(--color-text);background:#fff;padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:17px">2. Fill what is standing</div><div style="font-size:15px;line-height:1.35;color:var(--color-neutral-800)">Fill only fields with one correct answer that never changes per bid. Anything judgement based stays blank by design.</div></div>
+        <div style="border:2px solid var(--color-text);background:#fff;padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:17px">3. Print for signature</div><div style="font-size:15px;line-height:1.35;color:var(--color-neutral-800)">Output a print pack with signature and initial points marked. Wet ink stays wet ink.</div></div>
+        <div style="border:2px solid var(--color-text);background:#fff;padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:17px">4. Assemble in tender order</div><div style="font-size:15px;line-height:1.35;color:var(--color-neutral-800)">Scanned signed pages plus the born digital documents, merged in the order the tender specifies, indexed and page numbered.</div></div>
+      </div>
+      <div style="border:6px solid var(--alert);background:var(--alert-100);padding:14px;margin-top:auto">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--alert-700);margin-bottom:6px">WHAT WE DO NOT PRE FILL</div>
+        <div style="font-size:15px;line-height:1.35;color:var(--alert-700)">Prices, rates, programme dates, method statements, declarations of interest, local content commitments, anything requiring a signature. A pre filled declaration nobody read is a fraud risk, not a time saving.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;min-height:0">
+      <div style="border-bottom:2px solid var(--color-text);padding-bottom:8px">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-accent);margin-bottom:4px">STAGE 13</div>
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:26px;line-height:1.1">Completeness check before upload</div>
+      </div>
+      <div style="border:2px solid var(--color-text);background:#fff;padding:16px;flex:1">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-700);margin-bottom:10px">THE SCAN, RUN AGAINST THE VERIFIED CHECKLIST</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.3">
+          <div style="display:flex;gap:12px;border-bottom:2px solid var(--color-divider);padding-bottom:7px"><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent);width:24px;flex:none">01</span><span>Every mandatory returnable present, matched by reference not by filename</span></div>
+          <div style="display:flex;gap:12px;border-bottom:2px solid var(--color-divider);padding-bottom:7px"><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent);width:24px;flex:none">02</span><span>No blank page where a form should be, no page scanned upside down</span></div>
+          <div style="display:flex;gap:12px;border-bottom:2px solid var(--color-divider);padding-bottom:7px"><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent);width:24px;flex:none">03</span><span>Signature detected on every page flagged as requiring one</span></div>
+          <div style="display:flex;gap:12px;border-bottom:2px solid var(--color-divider);padding-bottom:7px"><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent);width:24px;flex:none">04</span><span>Every Vault certificate valid at the closing date, checked again at the last moment</span></div>
+          <div style="display:flex;gap:12px;border-bottom:2px solid var(--color-divider);padding-bottom:7px"><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent);width:24px;flex:none">05</span><span>BOQ totals in the submitted file match the signed gate 3 figure</span></div>
+          <div style="display:flex;gap:12px;border-bottom:2px solid var(--color-divider);padding-bottom:7px"><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent);width:24px;flex:none">06</span><span>File format, file size and naming comply with the portal rules extracted at stage 04</span></div>
+          <div style="display:flex;gap:12px"><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent);width:24px;flex:none">07</span><span>Gate rows 1 to 4 all present and signed in the database</span></div>
+        </div>
+      </div>
+      <div style="border:2px solid var(--color-text);background:#fff;padding:14px">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:12px;letter-spacing:0.14em;color:var(--color-neutral-700);margin-bottom:8px">OUTPUT</div>
+        <div style="display:flex;gap:14px">
+          <div style="flex:1;border:2px solid var(--color-text);padding:8px 10px"><div style="font-family:var(--font-heading);font-weight:800;font-size:16px">Green report</div><div style="font-size:14px;line-height:1.3;color:var(--color-neutral-700)">One page, all checks passed, filed with the submission proof.</div></div>
+          <div style="flex:1;border:2px solid var(--alert);background:var(--alert-100);padding:8px 10px"><div style="font-family:var(--font-heading);font-weight:800;font-size:16px;color:var(--alert-700)">Blocking list</div><div style="font-size:14px;line-height:1.3;color:var(--alert-700)">Anything failing, with the page reference. Upload stays closed until it clears.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="P2-06 Build sequence" style="width:1587px;height:1123px;background:var(--color-bg);color:var(--color-text);padding:52px 60px;display:flex;flex-direction:column;font-family:var(--font-body);box-shadow:var(--shadow-lg);margin:0 auto 48px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--color-text);padding-bottom:12px;margin-bottom:18px">
+    <div style="display:flex;align-items:baseline;gap:20px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:38px;line-height:1;color:var(--color-accent)">06</div>
+      <h2 style="font-size:34px;line-height:1;letter-spacing:-0.02em;margin:0">Build sequence</h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px"><img src="assets/birchleigh-mark.png" alt="Birchleigh Industries" style="height:66px;width:auto;display:block"><div style="text-align:right;font-family:var(--font-heading);font-weight:600;font-size:12px;line-height:1.5;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-700)">Built by you, hands on<br>Each step ships something usable</div></div>
+  </div>
+
+  <div style="font-size:16px;line-height:1.4;color:var(--color-neutral-800);max-width:1150px;margin-bottom:20px">Ordered by value divided by effort, and by what unlocks what. Nothing here needs the step after it to be useful on its own.</div>
+
+  <div style="flex:1;display:flex;flex-direction:column;gap:12px;min-height:0">
+    <div style="display:flex;align-items:stretch;gap:0;border:2px solid var(--color-text);background:#fff">
+      <div style="width:78px;flex:none;background:var(--color-text);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:30px">01</div>
+      <div style="flex:1.4;padding:12px 16px;border-right:2px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1">Database and tracker</div><div style="font-size:15px;line-height:1.3;color:var(--color-neutral-800)">Postgres schema from artboard 04, Airtable synced on top, Phase 1 data typed in.</div></div>
+      <div style="flex:1;padding:12px 16px;border-right:2px solid var(--color-divider);font-size:15px;line-height:1.3">Unlocks everything. Every later step reads or writes this.</div>
+      <div style="width:150px;flex:none;padding:12px 16px;font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent)">1 to 2 weeks</div>
+    </div>
+    <div style="display:flex;align-items:stretch;gap:0;border:2px solid var(--color-text);background:#fff">
+      <div style="width:78px;flex:none;background:var(--color-text);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:30px">02</div>
+      <div style="flex:1.4;padding:12px 16px;border-right:2px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1">Discovery, RSS and email first</div><div style="font-size:15px;line-height:1.3;color:var(--color-neutral-800)">Three RSS feeds and the shared mailbox parser. Dedupe, filter, write to tracker.</div></div>
+      <div style="flex:1;padding:12px 16px;border-right:2px solid var(--color-divider);font-size:15px;line-height:1.3">Immediate coverage gain with no scraping fragility. Proves the record shape.</div>
+      <div style="width:150px;flex:none;padding:12px 16px;font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent)">1 week</div>
+    </div>
+    <div style="display:flex;align-items:stretch;gap:0;border:2px solid var(--color-text);background:#fff">
+      <div style="width:78px;flex:none;background:var(--color-text);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:30px">03</div>
+      <div style="flex:1.4;padding:12px 16px;border-right:2px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1">Vault expiry watcher</div><div style="font-size:15px;line-height:1.3;color:var(--color-neutral-800)">Nightly job comparing vault_docs.expires_at against every open closing date.</div></div>
+      <div style="flex:1;padding:12px 16px;border-right:2px solid var(--color-divider);font-size:15px;line-height:1.3">Smallest job on the list, removes the most common disqualification.</div>
+      <div style="width:150px;flex:none;padding:12px 16px;font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent)">2 days</div>
+    </div>
+    <div style="display:flex;align-items:stretch;gap:0;border:2px solid var(--color-accent);background:#fff">
+      <div style="width:78px;flex:none;background:var(--color-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:30px">04</div>
+      <div style="flex:1.4;padding:12px 16px;border-right:2px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1">Document capture chain</div><div style="font-size:15px;line-height:1.3;color:var(--color-neutral-800)">OCR plus Claude extraction against a fixed schema, validated on twenty past tenders.</div></div>
+      <div style="flex:1;padding:12px 16px;border-right:2px solid var(--color-divider);font-size:15px;line-height:1.3">The big one. Two days of owner time back per tender.</div>
+      <div style="width:150px;flex:none;padding:12px 16px;font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent)">3 to 4 weeks</div>
+    </div>
+    <div style="display:flex;align-items:stretch;gap:0;border:2px solid var(--color-text);background:#fff">
+      <div style="width:78px;flex:none;background:var(--color-text);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:30px">05</div>
+      <div style="flex:1.4;padding:12px 16px;border-right:2px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1">Scrapers, tier by tier</div><div style="font-size:15px;line-height:1.3;color:var(--color-neutral-800)">eTenders and SANRAL first, then Gauteng DID, then the municipal aggregators.</div></div>
+      <div style="flex:1;padding:12px 16px;border-right:2px solid var(--color-divider);font-size:15px;line-height:1.3">Long tail. Add one site at a time, each with a health check.</div>
+      <div style="width:150px;flex:none;padding:12px 16px;font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent)">Ongoing</div>
+    </div>
+    <div style="display:flex;align-items:stretch;gap:0;border:2px solid var(--color-text);background:#fff">
+      <div style="width:78px;flex:none;background:var(--color-text);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:30px">06</div>
+      <div style="flex:1.4;padding:12px 16px;border-right:2px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1">Rate Library queries</div><div style="font-size:15px;line-height:1.3;color:var(--color-neutral-800)">Load historical priced items, add escalation, suggest rates at stage 07.</div></div>
+      <div style="flex:1;padding:12px 16px;border-right:2px solid var(--color-divider);font-size:15px;line-height:1.3">Needs outcome rows to be worth much. Value compounds over a year.</div>
+      <div style="width:150px;flex:none;padding:12px 16px;font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent)">2 weeks</div>
+    </div>
+    <div style="display:flex;align-items:stretch;gap:0;border:2px solid var(--color-text);background:#fff">
+      <div style="width:78px;flex:none;background:var(--color-text);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:800;font-size:30px">07</div>
+      <div style="flex:1.4;padding:12px 16px;border-right:2px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.1">Pre fill and completeness check</div><div style="font-size:15px;line-height:1.3;color:var(--color-neutral-800)">Field mapping, print pack, and the stage 13 scan against the verified checklist.</div></div>
+      <div style="flex:1;padding:12px 16px;border-right:2px solid var(--color-divider);font-size:15px;line-height:1.3">Depends on step 04. Build it once extraction is trusted.</div>
+      <div style="width:150px;flex:none;padding:12px 16px;font-family:var(--font-heading);font-weight:800;font-size:15px;color:var(--color-accent)">3 weeks</div>
+    </div>
+  </div>
+
+  <div style="border-top:2px solid var(--color-text);margin-top:16px;padding-top:14px;display:flex;align-items:baseline;gap:24px">
+    <div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1.2;color:var(--color-accent)">Phase 2 opens when Phase 1 has run a full quarter without a missed gate.</div>
+    <div style="font-size:15px;color:var(--color-neutral-700)">Until then this document stays between us.</div>
+  </div>
+</section>
+</x-dc>
+</body>
+</html>

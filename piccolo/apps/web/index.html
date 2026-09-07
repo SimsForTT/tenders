@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Same restrictive CSP posture as the API: no inline script sources,
+         fonts from Google Fonts only. connect-src is filled in from
+         VITE_API_BASE_URL at build time (Vite's %VITE_*% HTML replacement)
+         so this stays correct whether the API is on localhost, a VPS, or
+         wherever it ends up self-hosted - it is never hardcoded here. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' %VITE_API_BASE_URL%;"
+    />
+    <link rel="icon" href="/birchleigh-mark.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap" rel="stylesheet" />
+    <title>Piccolo &middot; Birchleigh Industries</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

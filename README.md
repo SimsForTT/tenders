@@ -1,3 +1,37 @@
+# SimsForTT/tenders
+
+This repository holds two related, separately-runnable projects for
+tracking South African tender platforms:
+
+- **[`piccolo/`](piccolo/README.md) — Piccolo**, the full Phase 2 tender
+  pipeline system for Birchleigh Industries: discovery, OCR/Claude
+  extraction, a tracker UI, and the four-gate approval workflow from the
+  original design (see `chats/` and `project/`). Self-hosted, free stack
+  except Claude. Start there for setup, `piccolo/SECURITY.md` for the
+  security model, and `piccolo/DEPLOYMENT.md` for hosting options.
+- **Tender Scraper** (this directory's root: `main.py`, `scrapers/`,
+  `storage/`, `notify/`) — the original, standalone Python scraper this
+  repo started as. Still fully functional on its own (see "Tender
+  Scraper" below) if you just want the eTenders scrape + Discord alert
+  loop without the rest of Piccolo.
+
+**They are not duplicates.** Piccolo's discovery layer
+(`piccolo/workflows/scrapers/etenders/scrape.ts`) is a direct TypeScript
+port of this project's verified `scrapers/etenders.py` technique, wired
+into Piccolo's own Postgres-backed API instead of local SQLite. Bug
+fixes to the underlying eTenders scraping approach belong in both places
+if they still apply, but day-to-day, **Piccolo's version is the one
+being maintained forward** - see `piccolo/workflows/README.md` for why
+it runs on GitHub Actions rather than n8n.
+
+`chats/` and `project/` are the original Claude Design handoff bundle
+that Piccolo was built from - the exported chat transcripts and `.dc.html`
+design artboards. Not something you need to read to run either project,
+but the source of truth for *why* Piccolo's pipeline is shaped the way
+it is (the six rules that don't bend, the four gates, etc).
+
+---
+
 # Tender Scraper
 
 Free, open-source pipeline for tracking South African government/mining
@@ -24,12 +58,14 @@ Discord webhooks.
   the listing page.
 - `notify/discord.py` (Phase 3) — code complete, fails gracefully without
   credentials. **Still needs a real webhook URL to test sending** — see
-  Discord setup below.
-- `.github/workflows/scrape.yml` (Phase 4) — workflow file created
-  (daily cron 05:00 UTC + manual `workflow_dispatch`), commits
-  `storage/tenders.db` back after each run. **Not yet pushed/run on
-  GitHub** — this project isn't a git repo yet. Once pushed, trigger it
-  manually once to confirm before trusting the daily schedule.
+  Discord setup below. (Also ported into Piccolo — see
+  `piccolo/apps/api/src/lib/discord.ts`.)
+- `.github/workflows/scrape.yml` (Phase 4) — referenced below but not
+  actually present in this repo; use `piccolo`'s equivalent
+  (`.github/workflows/etenders-scrape.yml`) if you want the GitHub
+  Actions schedule working today, or recreate this one following the
+  same pattern for a standalone (non-Piccolo) scrape+commit-to-SQLite
+  loop.
 
 ## Setup (local)
 
@@ -103,3 +139,24 @@ Once those two are confirmed working, build Phase 5+ scrapers one portal
 at a time, each subclassing `BaseScraper` in `scrapers/base.py` the same
 way `EtendersScraper` does — this keeps `main.py`'s scraper loop unchanged
 as new portals are added.
+
+**Note (from the Piccolo merge):** consider whether Phase 5+ belongs here
+or as additions to `piccolo/workflows/` instead, now that Piccolo exists
+as the actively-maintained system this scraper feeds into.
+
+---
+
+# Design handoff bundle (Piccolo's origin)
+
+`chats/` and `project/` below are a **handoff bundle** from Claude Design
+(claude.ai/design) - the source Piccolo (`piccolo/`) was built from. A
+user mocked up the Phase 1 and Phase 2 tender-pipeline designs in
+HTML/CSS/JS using Claude Design, then exported this bundle so a coding
+agent could implement them for real. Kept here as the design record;
+`piccolo/README.md` is what to read to actually run the system.
+
+- `chats/` — the conversation transcripts between the user and the design
+  assistant (what was actually wanted, and where it landed after
+  iterating)
+- `project/` — the `.dc.html` design artboards (Phase 1 and Phase 2),
+  plus their imported assets/components
