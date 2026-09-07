@@ -23,8 +23,10 @@ web UI) is open source and runs on your own hardware.
 | OCR | Tesseract (via `tesseract.js`) + `pdf-parse` + `mammoth` + `exceljs` | Free, no cloud OCR bill |
 | Extraction | Claude (Anthropic API) | Structured extraction against the fixed schema in artboard P2-03 |
 
-See `SECURITY.md` for the full security model and `workflows/README.md` for
-the discovery-layer setup.
+See `SECURITY.md` for the full security model, `workflows/README.md` for
+the discovery-layer setup, and `DEPLOYMENT.md` if you're putting the web
+app on Vercel with the rest self-hosted rather than running everything
+locally via Docker Compose.
 
 ## First-time setup
 
